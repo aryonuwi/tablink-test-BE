@@ -19,7 +19,9 @@ func NewIngredientRepository(db *pgxpool.Pool) *IngredientRepository {
 
 func (r *IngredientRepository) List(ctx context.Context, limit, offset int) ([]domain.Ingredient, int64, error) {
 	query := `
-		SELECT uuid, name, cause_alergy, type, status, created_at, updated_at, deleted_at
+		SELECT uuid, name, cause_alergy, type, status, created_at,
+		       COALESCE(updated_at, created_at) AS updated_at,
+		       deleted_at
 		FROM tm_ingredient
 		WHERE deleted_at IS NULL
 		ORDER BY created_at DESC
@@ -67,7 +69,9 @@ func (r *IngredientRepository) List(ctx context.Context, limit, offset int) ([]d
 
 func (r *IngredientRepository) GetByID(ctx context.Context, uuid string) (*domain.Ingredient, error) {
 	query := `
-		SELECT uuid, name, cause_alergy, type, status, created_at, updated_at, deleted_at
+		SELECT uuid, name, cause_alergy, type, status, created_at,
+		       COALESCE(updated_at, created_at) AS updated_at,
+		       deleted_at
 		FROM tm_ingredient
 		WHERE uuid = $1 AND deleted_at IS NULL
 	`
